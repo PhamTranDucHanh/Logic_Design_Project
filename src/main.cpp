@@ -1,5 +1,6 @@
 #include "dht_anomaly_model.h"
 #include <DHT20.h>
+
 #include <TensorFlowLite_ESP32.h>
 
 #include "tensorflow/lite/micro/all_ops_resolver.h"
@@ -9,52 +10,69 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 
 
-DHT20 dht20;
+
+// Globals, for the convenience of one-shot setup.
+namespace {
+tflite::ErrorReporter* error_reporter = nullptr;
+const tflite::Model* model = nullptr;
+tflite::MicroInterpreter* interpreter = nullptr;
 TfLiteTensor* input = nullptr;
 TfLiteTensor* output = nullptr;
-
-constexpr int kTensorArenaSize = 2 * 1024;
+constexpr int kTensorArenaSize = 8 * 1024; // Adjust size based on your model
 uint8_t tensor_arena[kTensorArenaSize];
+} // namespace
 
-const tflite::Model* model = tflite::GetModel(dht_anomaly_model_tflite);
-tflite::MicroInterpreter* interpreter = nullptr;
 
 void setup() {
-  Serial.begin(115200);
-  Wire.begin();
-  dht20.begin();
+Serial.begin(115200);
+  Serial.println("TensorFlow Lite Init....");
+  static tflite::MicroErrorReporter micro_error_reporter;
+  error_reporter = &micro_error_reporter;
 
-  static tflite::MicroMutableOpResolver<5> resolver;
-  resolver.AddFullyConnected();
-  resolver.AddReshape();
-  resolver.AddLogistic();
-  resolver.AddSoftmax();
-  resolver.AddQuantize();
+  model = tflite::GetModel(dht_anomaly_model_tflite); // g_model_data is from model_data.h
+  if (model->version() != TFLITE_SCHEMA_VERSION) {
+    error_reporter->Report("Model provided is schema version %d, not equal to supported version %d.",
+                           model->version(), TFLITE_SCHEMA_VERSION);
+    return;
+  }
 
-  interpreter = new tflite::MicroInterpreter(model, resolver, tensor_arena, kTensorArenaSize, nullptr);
-  interpreter->AllocateTensors();
+  static tflite::AllOpsResolver resolver;
+  static tflite::MicroInterpreter static_interpreter(
+      model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
+  interpreter = &static_interpreter;
+
+  TfLiteStatus allocate_status = interpreter->AllocateTensors();
+  if (allocate_status != kTfLiteOk) {
+    error_reporter->Report("AllocateTensors() failed");
+    return;
+  }
 
   input = interpreter->input(0);
   output = interpreter->output(0);
+
+
+  Serial.println("TensorFlow Lite Micro initialized on ESP32.");
 }
 
 void loop() {
-  float temp = 20;
-  float hum = 50;
+  
+  // Prepare input data (e.g., sensor readings)
+  // For a simple example, let's assume a single float input
+  input->data.f[0] = 20.5; 
+  input->data.f[1] = 60.5; 
 
-  input->data.f[0] = temp;
-  input->data.f[1] = hum;
-
-  interpreter->Invoke();
-
-  float anomaly_prob = output->data.f[0];
-  Serial.print("Temp: "); Serial.print(temp);
-  Serial.print(", Hum: "); Serial.print(hum);
-  Serial.print(", Anomaly probability: "); Serial.println(anomaly_prob);
-
-  if (anomaly_prob > 0.5) {
-    Serial.println("Abnormality detected!");
-    // Add alarms, LED, etc.
+  // Run inference
+  TfLiteStatus invoke_status = interpreter->Invoke();
+  if (invoke_status != kTfLiteOk) {
+    error_reporter->Report("Invoke failed");
+    return;
   }
-  delay(2000);
+
+  // Get and process output
+  float result = output->data.f[0];
+  Serial.print("Inference result: ");
+  Serial.println(result);
+
+  delay(5000); 
+
 }
