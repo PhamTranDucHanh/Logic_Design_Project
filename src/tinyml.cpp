@@ -42,6 +42,9 @@ void setupTinyML(){
 }
 
 void tiny_ml_task(void *pvParameters){
+    
+    setupTinyML();
+
     while(1){
        
         // Prepare input data (e.g., sensor readings)

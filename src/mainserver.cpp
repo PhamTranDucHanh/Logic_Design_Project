@@ -182,6 +182,10 @@ void connectToWiFi() {
 }
 
 void main_server_task(void *pvParameters){
+  
+  startAP();
+  setupServer();
+  
   while(1){
     server.handleClient();
 

@@ -11,12 +11,6 @@
 void setup() {
   Serial.begin(115200);
 
-  startAP();
-  setupServer();
-  setupTinyML();
-
-
-  
   xTaskCreate( led_blinky, "Task LED Blink" ,2048  ,NULL  ,2 , NULL);
   xTaskCreate( neo_blinky, "Task NEO Blink" ,2048  ,NULL  ,2 , NULL);
   xTaskCreate( temp_humi_monitor, "Task TEMP HUMI Monitor" ,2048  ,NULL  ,2 , NULL);
@@ -26,12 +20,4 @@ void setup() {
 
 void loop() {
   
-  
-  
-  
-  
-  
-
-
-
 }
