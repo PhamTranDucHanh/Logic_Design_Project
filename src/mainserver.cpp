@@ -1,4 +1,6 @@
 #include "mainserver.h"
+#include <WiFi.h>
+#include <WebServer.h>
 
 bool led1_state = false;
 bool led2_state = false;
@@ -173,7 +175,7 @@ void main_server_task(void *pvParameters){
 
     // Nếu nhấn BOOT thì về AP mode
     if (digitalRead(BOOT_PIN) == LOW) {
-      delay(100);
+      vTaskDelay(100);
       if (digitalRead(BOOT_PIN) == LOW) {
         if (!isAPMode) {
           startAP();
@@ -197,6 +199,6 @@ void main_server_task(void *pvParameters){
       }
     }
 
-    delay(10); // avoid watchdog reset
+    vTaskDelay(20); // avoid watchdog reset
   }
 }
