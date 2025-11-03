@@ -39,7 +39,18 @@ void temp_humi_monitor(void *pvParameters){
         Serial.print(temperature);
         Serial.println("°C");
         
-        vTaskDelay(5000);
+        // ==================================================
+        StaticJsonDocument<128> doc;
+        doc["type"] = "sensor_data";
+        doc["temperature"] = temperature;
+        doc["humidity"] = humidity;
+
+        String jsonString;
+        serializeJson(doc, jsonString);
+        
+        Webserver_sendata(jsonString);
+        // ==================================================
+        vTaskDelay(3000);
     }
     
 }
