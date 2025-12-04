@@ -43,6 +43,7 @@ void temp_humi_monitor(void *pvParameters){
         glob_temperature = temperature;
         glob_humidity = humidity;
         glob_light_level = lightLevel;
+        glob_light_value = lightValue;
         
         // Serial output
         Serial.print("Light analog: ");
@@ -79,6 +80,7 @@ void temp_humi_monitor(void *pvParameters){
         doc["type"] = "sensor_data";
         doc["temperature"] = temperature;
         doc["humidity"] = humidity;
+        doc["light_value"] = lightValue;  // Gửi giá trị analog (0-4095)
 
         String jsonString;
         serializeJson(doc, jsonString);

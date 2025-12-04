@@ -113,7 +113,10 @@ void coreiot_task(void *pvParameters){
         client.loop();
 
         // Sample payload, publish to 'v1/devices/me/telemetry'
-        String payload = "{\"temperature\":" + String(glob_temperature) +  ",\"humidity\":" + String(glob_humidity) + "}";
+        // Giá trị analog từ 0-4095. Cảm biến cho giá trị thấp khi sáng, cao khi tối.
+        // -> Đảo ngược và chuyển sang %: (1 - (value/4095)) * 100
+        float lightPercent = 100 - (glob_light_value / 4095 * 100);
+        String payload = "{\"temperature\":" + String(glob_temperature) +  ",\"humidity\":" + String(glob_humidity) + ",\"illuminance\":" + String(lightPercent) + "}";
         
         client.publish("v1/devices/me/telemetry", payload.c_str());
 

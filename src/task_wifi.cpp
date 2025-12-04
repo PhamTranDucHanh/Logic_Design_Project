@@ -32,6 +32,8 @@ void startSTA()
     }
     //Give a semaphore here
     xSemaphoreGive(xBinarySemaphoreInternet);
+    //Give NeoPixel semaphore
+    xSemaphoreGive(xBinarySemaphoreNeoPixel);
 }
 
 bool Wifi_reconnect()

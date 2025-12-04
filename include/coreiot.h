@@ -10,4 +10,4 @@
 
 void coreiot_task(void *pvParameters);
 
-#endif
+#endif  // __COREIOT_H__
