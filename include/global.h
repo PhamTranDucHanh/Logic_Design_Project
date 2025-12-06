@@ -6,6 +6,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+extern volatile bool human_detected;
 extern float glob_temperature;
 extern float glob_humidity;
 extern float glob_light_value;

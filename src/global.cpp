@@ -1,4 +1,6 @@
 #include "global.h"
+
+volatile bool human_detected = false;
 float glob_temperature = 0;
 float glob_humidity = 0;
 float glob_light_value = 0;
