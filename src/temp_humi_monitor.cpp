@@ -6,6 +6,11 @@ LiquidCrystal_I2C lcd(0x27,16,2);
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 #define LIGHT_ANALOG_PIN 1 //A0
 
+// Instance to hold sensor data
+SensorData sensorData;
+// Determine light level
+String lightLevel;
+
 void temp_humi_monitor(void *pvParameters){
 
     Wire.begin(11, 12);
@@ -33,17 +38,20 @@ void temp_humi_monitor(void *pvParameters){
             //return;
         }
 
-        // Determine light level
-        String lightLevel;
         if(lightValue <= 1200) lightLevel = "Bright";
         else if(lightValue <= 3200) lightLevel = "Medium";
         else lightLevel = "Dark";
 
-        //Update global variables for temperature and humidity and light level
-        glob_temperature = temperature;
-        glob_humidity = humidity;
-        glob_light_level = lightLevel;
-        glob_light_value = lightValue;
+        // Đóng gói dữ liệu vào struct và gửi vào queue
+        sensorData.temperature = temperature;
+        sensorData.humidity = humidity;
+        sensorData.light_value = lightValue;
+        if (xQueueSend(xQueueSensorDataNeoPixel, &sensorData, 0) != pdPASS) {
+            Serial.println("Queue Sensor Data NeoPixel full");
+        }
+        if (xQueueSend(xQueueSensorDataCoreIOT, &sensorData, 0) != pdPASS) {
+            Serial.println("Queue Sensor Data CoreIOT full");
+        }
         
         // Serial output
         Serial.print("Light analog: ");
@@ -93,12 +101,12 @@ void temp_humi_monitor(void *pvParameters){
 void draw(){
     u8g2.setFont(u8g2_font_ncenB08_tr);       // choose a suitable font
     char temp_str[20];
-    sprintf(temp_str, "Temp: %.2f C", glob_temperature);
+    sprintf(temp_str, "Temp: %.2f C", sensorData.temperature);
     u8g2.drawStr(0,10,temp_str);
     char humi_str[20];
-    sprintf(humi_str, "Humi: %.2f %%", glob_humidity);
+    sprintf(humi_str, "Humi: %.2f %%", sensorData.humidity);
     u8g2.drawStr(0,30,humi_str);
     char light_str[20];
-    sprintf(light_str, "Light: %s", glob_light_level.c_str());
+    sprintf(light_str, "Light: %s", lightLevel.c_str());
     u8g2.drawStr(0,50,light_str);
 }

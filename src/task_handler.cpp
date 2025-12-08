@@ -62,89 +62,114 @@ void handleWebSocketMessage(String message)
     }
     else if (doc["page"] == "neopixel")
     {
-        String mode = doc["mode"].as<String>();
-        glob_neopixel_mode = mode;
-        if (mode == "custom") {
+        NeoPixelConfigStruct config;
+        config.mode = doc["mode"].as<String>();
+        config.effect = doc["effect"].as<String>();
+        // Custom mode
+        if (config.mode == "custom") {
             JsonArray colorArr = doc["color"].as<JsonArray>();
-            glob_neopixel_r = colorArr[0];
-            glob_neopixel_g = colorArr[1];
-            glob_neopixel_b = colorArr[2];
-            glob_neopixel_effect = doc["effect"].as<String>();
-            Serial.println("[NeoPixel] Mode: custom");
-            Serial.printf("  Color: R=%d, G=%d, B=%d\n", glob_neopixel_r, glob_neopixel_g, glob_neopixel_b);
-            Serial.println("  Effect: " + glob_neopixel_effect);
-        } else if (mode == "temp") {
+            config.neopixel_r = colorArr[0];
+            config.neopixel_g = colorArr[1];
+            config.neopixel_b = colorArr[2];
+        }
+        // Temp
+        if (config.mode == "temp") {
             JsonObject temp = doc["temp"];
-            glob_temp_low_min = temp["low"]["min"].as<int>();
-            glob_temp_low_max = temp["low"]["max"].as<int>();
+            config.temp_low_min = temp["low"]["min"].as<int>();
+            config.temp_low_max = temp["low"]["max"].as<int>();
             JsonArray lowColor = temp["low"]["color"].as<JsonArray>();
-            glob_temp_low_r = lowColor[0];
-            glob_temp_low_g = lowColor[1];
-            glob_temp_low_b = lowColor[2];
-            glob_temp_mid_min = temp["mid"]["min"].as<int>();
-            glob_temp_mid_max = temp["mid"]["max"].as<int>();
+            config.temp_low_r = lowColor[0];
+            config.temp_low_g = lowColor[1];
+            config.temp_low_b = lowColor[2];
+            config.temp_mid_min = temp["mid"]["min"].as<int>();
+            config.temp_mid_max = temp["mid"]["max"].as<int>();
             JsonArray midColor = temp["mid"]["color"].as<JsonArray>();
-            glob_temp_mid_r = midColor[0];
-            glob_temp_mid_g = midColor[1];
-            glob_temp_mid_b = midColor[2];
-            glob_temp_high_min = temp["high"]["min"].as<int>();
-            glob_temp_high_max = temp["high"]["max"].as<int>();
+            config.temp_mid_r = midColor[0];
+            config.temp_mid_g = midColor[1];
+            config.temp_mid_b = midColor[2];
+            config.temp_high_min = temp["high"]["min"].as<int>();
+            config.temp_high_max = temp["high"]["max"].as<int>();
             JsonArray highColor = temp["high"]["color"].as<JsonArray>();
-            glob_temp_high_r = highColor[0];
-            glob_temp_high_g = highColor[1];
-            glob_temp_high_b = highColor[2];
-            Serial.println("[NeoPixel] Mode: temp");
-            Serial.printf("  Low:   %d-%d, R=%d, G=%d, B=%d\n", glob_temp_low_min, glob_temp_low_max, glob_temp_low_r, glob_temp_low_g, glob_temp_low_b);
-            Serial.printf("  Mid:   %d-%d, R=%d, G=%d, B=%d\n", glob_temp_mid_min, glob_temp_mid_max, glob_temp_mid_r, glob_temp_mid_g, glob_temp_mid_b);
-            Serial.printf("  High:  %d-%d, R=%d, G=%d, B=%d\n", glob_temp_high_min, glob_temp_high_max, glob_temp_high_r, glob_temp_high_g, glob_temp_high_b);
-        } else if (mode == "humi") {
+            config.temp_high_r = highColor[0];
+            config.temp_high_g = highColor[1];
+            config.temp_high_b = highColor[2];
+        }
+        // Humi
+        if (config.mode == "humi") {
             JsonObject humi = doc["humi"];
-            glob_humi_low_min = humi["low"]["min"].as<int>();
-            glob_humi_low_max = humi["low"]["max"].as<int>();
+            config.humi_low_min = humi["low"]["min"].as<int>();
+            config.humi_low_max = humi["low"]["max"].as<int>();
             JsonArray lowColor = humi["low"]["color"].as<JsonArray>();
-            glob_humi_low_r = lowColor[0];
-            glob_humi_low_g = lowColor[1];
-            glob_humi_low_b = lowColor[2];
-            glob_humi_mid_min = humi["mid"]["min"].as<int>();
-            glob_humi_mid_max = humi["mid"]["max"].as<int>();
+            config.humi_low_r = lowColor[0];
+            config.humi_low_g = lowColor[1];
+            config.humi_low_b = lowColor[2];
+            config.humi_mid_min = humi["mid"]["min"].as<int>();
+            config.humi_mid_max = humi["mid"]["max"].as<int>();
             JsonArray midColor = humi["mid"]["color"].as<JsonArray>();
-            glob_humi_mid_r = midColor[0];
-            glob_humi_mid_g = midColor[1];
-            glob_humi_mid_b = midColor[2];
-            glob_humi_high_min = humi["high"]["min"].as<int>();
-            glob_humi_high_max = humi["high"]["max"].as<int>();
+            config.humi_mid_r = midColor[0];
+            config.humi_mid_g = midColor[1];
+            config.humi_mid_b = midColor[2];
+            config.humi_high_min = humi["high"]["min"].as<int>();
+            config.humi_high_max = humi["high"]["max"].as<int>();
             JsonArray highColor = humi["high"]["color"].as<JsonArray>();
-            glob_humi_high_r = highColor[0];
-            glob_humi_high_g = highColor[1];
-            glob_humi_high_b = highColor[2];
-            Serial.println("[NeoPixel] Mode: humi");
-            Serial.printf("  Low:   %d-%d, R=%d, G=%d, B=%d\n", glob_humi_low_min, glob_humi_low_max, glob_humi_low_r, glob_humi_low_g, glob_humi_low_b);
-            Serial.printf("  Mid:   %d-%d, R=%d, G=%d, B=%d\n", glob_humi_mid_min, glob_humi_mid_max, glob_humi_mid_r, glob_humi_mid_g, glob_humi_mid_b);
-            Serial.printf("  High:  %d-%d, R=%d, G=%d, B=%d\n", glob_humi_high_min, glob_humi_high_max, glob_humi_high_r, glob_humi_high_g, glob_humi_high_b);
-        } else if (mode == "light") {
+            config.humi_high_r = highColor[0];
+            config.humi_high_g = highColor[1];
+            config.humi_high_b = highColor[2];
+        }
+        // Light
+        if (config.mode == "light") {
             JsonObject light = doc["light"];
-            glob_light_low_min = light["low"]["min"].as<int>();
-            glob_light_low_max = light["low"]["max"].as<int>();
+            config.light_low_min = light["low"]["min"].as<int>();
+            config.light_low_max = light["low"]["max"].as<int>();
             JsonArray lowColor = light["low"]["color"].as<JsonArray>();
-            glob_light_low_r = lowColor[0];
-            glob_light_low_g = lowColor[1];
-            glob_light_low_b = lowColor[2];
-            glob_light_mid_min = light["mid"]["min"].as<int>();
-            glob_light_mid_max = light["mid"]["max"].as<int>();
+            config.light_low_r = lowColor[0];
+            config.light_low_g = lowColor[1];
+            config.light_low_b = lowColor[2];
+            config.light_mid_min = light["mid"]["min"].as<int>();
+            config.light_mid_max = light["mid"]["max"].as<int>();
             JsonArray midColor = light["mid"]["color"].as<JsonArray>();
-            glob_light_mid_r = midColor[0];
-            glob_light_mid_g = midColor[1];
-            glob_light_mid_b = midColor[2];
-            glob_light_high_min = light["high"]["min"].as<int>();
-            glob_light_high_max = light["high"]["max"].as<int>();
+            config.light_mid_r = midColor[0];
+            config.light_mid_g = midColor[1];
+            config.light_mid_b = midColor[2];
+            config.light_high_min = light["high"]["min"].as<int>();
+            config.light_high_max = light["high"]["max"].as<int>();
             JsonArray highColor = light["high"]["color"].as<JsonArray>();
-            glob_light_high_r = highColor[0];
-            glob_light_high_g = highColor[1];
-            glob_light_high_b = highColor[2];
-            Serial.println("[NeoPixel] Mode: light");
-            Serial.printf("  Low:   %d-%d, R=%d, G=%d, B=%d\n", glob_light_low_min, glob_light_low_max, glob_light_low_r, glob_light_low_g, glob_light_low_b);
-            Serial.printf("  Mid:   %d-%d, R=%d, G=%d, B=%d\n", glob_light_mid_min, glob_light_mid_max, glob_light_mid_r, glob_light_mid_g, glob_light_mid_b);
-            Serial.printf("  High:  %d-%d, R=%d, G=%d, B=%d\n", glob_light_high_min, glob_light_high_max, glob_light_high_r, glob_light_high_g, glob_light_high_b);
+            config.light_high_r = highColor[0];
+            config.light_high_g = highColor[1];
+            config.light_high_b = highColor[2];
+        }
+        //In ra Serial để kiểm tra
+        Serial.println("===== NeoPixel Config Received =====");
+        Serial.print("Mode: "); Serial.println(config.mode);
+        Serial.print("Effect: "); Serial.println(config.effect);
+
+        if (config.mode == "custom") {
+            Serial.print("Custom Color - R: "); Serial.print(config.neopixel_r);
+            Serial.print(", G: "); Serial.print(config.neopixel_g);
+            Serial.print(", B: "); Serial.println(config.neopixel_b);
+        }
+        if (config.mode == "temp") {
+            Serial.println("Temp Ranges:");
+            Serial.printf("  Low [%d-%d] Color(RGB): %d,%d,%d\n", config.temp_low_min, config.temp_low_max, config.temp_low_r, config.temp_low_g, config.temp_low_b);
+            Serial.printf("  Mid [%d-%d] Color(RGB): %d,%d,%d\n", config.temp_mid_min, config.temp_mid_max, config.temp_mid_r, config.temp_mid_g, config.temp_mid_b);
+            Serial.printf("  High [%d-%d] Color(RGB): %d,%d,%d\n", config.temp_high_min, config.temp_high_max, config.temp_high_r, config.temp_high_g, config.temp_high_b);
+        }
+        if (config.mode == "humi") {
+            Serial.println("Humi Ranges:");
+            Serial.printf("  Low [%d-%d] Color(RGB): %d,%d,%d\n", config.humi_low_min, config.humi_low_max, config.humi_low_r, config.humi_low_g, config.humi_low_b);
+            Serial.printf("  Mid [%d-%d] Color(RGB): %d,%d,%d\n", config.humi_mid_min, config.humi_mid_max, config.humi_mid_r, config.humi_mid_g, config.humi_mid_b);
+            Serial.printf("  High [%d-%d] Color(RGB): %d,%d,%d\n", config.humi_high_min, config.humi_high_max, config.humi_high_r, config.humi_high_g, config.humi_high_b);
+        }
+        if (config.mode == "light") {
+            Serial.println("Light Ranges:");
+            Serial.printf("  Low [%d-%d] Color(RGB): %d,%d,%d\n", config.light_low_min, config.light_low_max, config.light_low_r, config.light_low_g, config.light_low_b);
+            Serial.printf("  Mid [%d-%d] Color(RGB): %d,%d,%d\n", config.light_mid_min, config.light_mid_max, config.light_mid_r, config.light_mid_g, config.light_mid_b);
+            Serial.printf("  High [%d-%d] Color(RGB): %d,%d,%d\n", config.light_high_min, config.light_high_max, config.light_high_r, config.light_high_g, config.light_high_b);
+        }
+        Serial.println("====================================");
+        // Gửi vào queue
+        if (xQueueSend(xQueueNeoPixelConfig, &config, 0) != pdPASS) {
+            Serial.println("xQueueNeoPixelConfig is full");
         }
     }
 }

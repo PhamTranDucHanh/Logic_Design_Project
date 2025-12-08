@@ -52,25 +52,56 @@ void callback(char* topic, byte* payload, unsigned int length) {
     return;
   }
 
-  const char* method = doc["method"];
-  if (strcmp(method, "setStateLED") == 0) {
-    // Check params type (could be boolean, int, or string according to your RPC)
-    // Example: {"method": "setValueLED", "params": "ON"}
-    const char* params = doc["params"];
-
-    if (strcmp(params, "ON") == 0) {
-      Serial.println("Device turned ON.");
-      //TODO
-
-    } else {   
-      Serial.println("Device turned OFF.");
-      //TODO
-
+    const char* method = doc["method"];
+    if (strcmp(method, "setRelay1") == 0) {
+      Serial.println("RPC: setRelay1 received");
+      if (doc["params"].is<bool>()) {
+        bool state = doc["params"];
+        Serial.print("Relay1 state: ");
+        Serial.println(state ? "ON" : "OFF");
+        //TODO: Xử lý relay 1
+        if(state){
+          digitalWrite(RELAY1_PIN, HIGH);
+        } else {
+          digitalWrite(RELAY1_PIN, LOW);
+        }
+      } else {
+        Serial.println("Invalid params type for Relay1!");
+      }
+    } else if (strcmp(method, "setRelay2") == 0) {
+      Serial.println("RPC: setRelay2 received");
+      if (doc["params"].is<bool>()) {
+        bool state = doc["params"];
+        Serial.print("Relay2 state: ");
+        Serial.println(state ? "ON" : "OFF");
+        //TODO: Xử lý relay 2
+        if(state){
+          digitalWrite(RELAY2_PIN, HIGH);
+        } else {
+          digitalWrite(RELAY2_PIN, LOW);
+        } 
+      } else {
+        Serial.println("Invalid params type for Relay2!");
+      }
+    } else if (strcmp(method, "setRelay3") == 0) {
+      Serial.println("RPC: setRelay3 received");
+      if (doc["params"].is<bool>()) {
+        bool state = doc["params"];
+        Serial.print("Relay3 state: ");
+        Serial.println(state ? "ON" : "OFF");
+        //TODO: Xử lý relay 3
+        if (state){
+          digitalWrite(RELAY3_PIN, HIGH);
+        } else {
+          digitalWrite(RELAY3_PIN, LOW);
+        }
+      } else {
+        Serial.println("Invalid params type for Relay3!");
+      }
+    } else {
+      Serial.print("Unknown method: ");
+      Serial.println(method);
     }
-  } else {
-    Serial.print("Unknown method: ");
-    Serial.println(method);
-  }
 }
 
 
@@ -103,24 +134,25 @@ void setup_coreiot(){
 
 void coreiot_task(void *pvParameters){
 
-    setup_coreiot();
-
-    while(1){
-
-        if (!client.connected()) {
-            reconnect();
-        }
-        client.loop();
-
-        // Sample payload, publish to 'v1/devices/me/telemetry'
-        // Giá trị analog từ 0-4095. Cảm biến cho giá trị thấp khi sáng, cao khi tối.
-        // -> Đảo ngược và chuyển sang %: (1 - (value/4095)) * 100
-        float lightPercent = 100 - (glob_light_value / 4095 * 100);
-        String payload = "{\"temperature\":" + String(glob_temperature) +  ",\"humidity\":" + String(glob_humidity) + ",\"illuminance\":" + String(lightPercent) + "}";
-        
-        client.publish("v1/devices/me/telemetry", payload.c_str());
-
-        Serial.println("Published payload: " + payload);
-        vTaskDelay(10000);  // Publish every 10 seconds
+  setup_coreiot();
+  SensorData sensorData = {0};
+  while(1){
+    if (!client.connected()) {
+      reconnect();
     }
+    client.loop();
+
+    // Lấy dữ liệu từ queue
+    if (xQueueReceive(xQueueSensorDataCoreIOT, &sensorData, 0) != pdPASS) {
+      Serial.println("Queue Sensor Data CoreIOT empty");
+    }
+
+    float lightPercent = 100 - (sensorData.light_value / 4095 * 100);
+    String payload = "{\"temperature\":" + String(sensorData.temperature) +  ",\"humidity\":" + String(sensorData.humidity) + ",\"illuminance\":" + String(lightPercent) + "}";
+
+    client.publish("v1/devices/me/telemetry", payload.c_str());
+
+    Serial.println("Published payload: " + payload);
+    vTaskDelay(3000);  // Publish every 3 seconds
+  }
 }
