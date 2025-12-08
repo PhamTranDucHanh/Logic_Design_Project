@@ -1,5 +1,7 @@
 #include "global.h"
 
+volatile bool human_detected = false;
+
 QueueHandle_t xQueueSensorDataNeoPixel = xQueueCreate(5, sizeof(SensorData));
 QueueHandle_t xQueueSensorDataCoreIOT = xQueueCreate(5, sizeof(SensorData));
 

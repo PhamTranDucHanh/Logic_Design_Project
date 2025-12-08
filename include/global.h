@@ -6,6 +6,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+extern volatile bool human_detected;
 #define RELAY1_PIN 10
 #define RELAY2_PIN 9
 #define RELAY3_PIN 8
