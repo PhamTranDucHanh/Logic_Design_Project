@@ -95,7 +95,13 @@ void temp_humi_monitor(void *pvParameters){
         
         Webserver_sendata(jsonString);
         // ==================================================
-        vTaskDelay(3000);
+        if (human_detected) {
+            vTaskDelay(3000);
+        }
+        else {
+            vTaskDelay(10000);
+        }
+        
     }
 }
 void draw(){

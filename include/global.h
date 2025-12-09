@@ -6,6 +6,8 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+// #define POWER_OPTIMIZE
+
 extern volatile bool human_detected;
 #define RELAY1_PIN 10
 #define RELAY2_PIN 9

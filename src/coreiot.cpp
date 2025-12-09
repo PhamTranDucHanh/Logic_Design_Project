@@ -146,13 +146,16 @@ void coreiot_task(void *pvParameters){
     if (xQueueReceive(xQueueSensorDataCoreIOT, &sensorData, 0) != pdPASS) {
       Serial.println("Queue Sensor Data CoreIOT empty");
     }
-
     float lightPercent = 100 - (sensorData.light_value / 4095 * 100);
-    String payload = "{\"temperature\":" + String(sensorData.temperature) +  ",\"humidity\":" + String(sensorData.humidity) + ",\"illuminance\":" + String(lightPercent) + "}";
+    int roomStatus = human_detected ? 1 : 0;
+    String payload = "{\"temperature\":" + String(sensorData.temperature) +
+                     ",\"humidity\":" + String(sensorData.humidity) +
+                     ",\"illuminance\":" + String(lightPercent) +
+                     ",\"room_status\":" + String(roomStatus) + "}";
 
     client.publish("v1/devices/me/telemetry", payload.c_str());
 
     Serial.println("Published payload: " + payload);
-    vTaskDelay(3000);  // Publish every 3 seconds
+    vTaskDelay(1000/portTICK_PERIOD_MS);
   }
 }
