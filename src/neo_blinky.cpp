@@ -37,14 +37,38 @@ void neo_blinky(void *pvParameters) {
             strip.show();
             continue;
         }
+        if (xSemaphoreTake(xBinarySemaphoreNormalMode, 0) == pdTRUE) {
+            // Đèn đỏ báo hiệu đã vào mode NORMAL
+            strip.setPixelColor(0, strip.Color(255, 0, 0));
+            strip.show();
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            // Quay về nhấp nháy đỏ mặc định
+            strip.setPixelColor(0, strip.Color(0, 0, 0));
+            strip.show();
+            continue;
+        }
+        if (xSemaphoreTake(xBinarySemaphoreSavePower, 0) == pdTRUE) {
+            // Đèn xanh dương báo hiệu đã vào mode SAVE POWER
+            strip.setPixelColor(0, strip.Color(0, 0, 255));
+            strip.show();
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            // Quay về nhấp nháy đỏ mặc định
+            strip.setPixelColor(0, strip.Color(0, 0, 0));
+            strip.show();
+            continue;
+        }
 
         // Nhận dữ liệu cấu hình từ queue (nếu có)
         if (xQueueReceive(xQueueNeoPixelConfig, &config, 0) != pdPASS) {
-            //Serial.println("xQueueNeoPixelConfig is empty");
+#ifdef PRINT_QUEUE_STATUS
+            Serial.println("xQueueNeoPixelConfig is empty");
+#endif
         }
         // Nhận dữ liệu cảm biến từ queue
         if (xQueueReceive(xQueueSensorDataNeoPixel, &sensorData, 0) != pdPASS) {
-            //Serial.println("xQueueSensorDataNeoPixel is empty");
+#ifdef PRINT_QUEUE_STATUS
+            Serial.println("xQueueSensorDataNeoPixel is empty");
+#endif
         }
 
         // Sử dụng config thay cho các biến cấu hình cũ

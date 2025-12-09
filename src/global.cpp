@@ -13,6 +13,8 @@ String CORE_IOT_PORT;
 
 SemaphoreHandle_t xBinarySemaphoreInternet = xSemaphoreCreateBinary();
 SemaphoreHandle_t xBinarySemaphoreNeoPixel = xSemaphoreCreateBinary();
+SemaphoreHandle_t xBinarySemaphoreNormalMode = xSemaphoreCreateBinary();
+SemaphoreHandle_t xBinarySemaphoreSavePower = xSemaphoreCreateBinary();
 
 
 QueueHandle_t xQueueNeoPixelConfig = xQueueCreate(5, sizeof(NeoPixelConfigStruct));

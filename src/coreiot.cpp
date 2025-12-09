@@ -107,15 +107,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup_coreiot(){
 
-  //Serial.print("Connecting to WiFi...");
-  //WiFi.begin(wifi_ssid, wifi_password);
-  //while (WiFi.status() != WL_CONNECTED) {
-  
-  // while (isWifiConnected == false) {
-  //   delay(500);
-  //   Serial.print(".");
-  // }
-
   while(1){
     if (xSemaphoreTake(xBinarySemaphoreInternet, portMAX_DELAY)) {
       break;
@@ -144,7 +135,9 @@ void coreiot_task(void *pvParameters){
 
     // Lấy dữ liệu từ queue
     if (xQueueReceive(xQueueSensorDataCoreIOT, &sensorData, 0) != pdPASS) {
+#ifdef PRINT_QUEUE_STATUS
       Serial.println("Queue Sensor Data CoreIOT empty");
+#endif
     }
     float lightPercent = 100 - (sensorData.light_value / 4095 * 100);
     int roomStatus = human_detected ? 1 : 0;
@@ -154,8 +147,10 @@ void coreiot_task(void *pvParameters){
                      ",\"room_status\":" + String(roomStatus) + "}";
 
     client.publish("v1/devices/me/telemetry", payload.c_str());
-
+#ifdef PRINT_COREIOT_PUBLISH
     Serial.println("Published payload: " + payload);
+#endif
     vTaskDelay(1000/portTICK_PERIOD_MS);
+
   }
 }

@@ -47,25 +47,29 @@ void temp_humi_monitor(void *pvParameters){
         sensorData.humidity = humidity;
         sensorData.light_value = lightValue;
         if (xQueueSend(xQueueSensorDataNeoPixel, &sensorData, 0) != pdPASS) {
+#ifdef PRINT_QUEUE_STATUS
             Serial.println("Queue Sensor Data NeoPixel full");
+#endif
         }
         if (xQueueSend(xQueueSensorDataCoreIOT, &sensorData, 0) != pdPASS) {
+#ifdef PRINT_QUEUE_STATUS
             Serial.println("Queue Sensor Data CoreIOT full");
+#endif
         }
         
         // Serial output
+#ifdef PRINT_SENSOR_DATA
         Serial.print("Light analog: ");
         Serial.print(lightValue);
         Serial.print(" -> ");
         Serial.println(lightLevel);
 
-        // LCD display
-        
         Serial.print("Humidity: ");
         Serial.print(humidity);
         Serial.print("%  Temperature: ");
         Serial.print(temperature);
         Serial.println("°C");
+#endif
 
         lcd.setCursor(0,0);
         lcd.print("Temp: ");
