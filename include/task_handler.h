@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <task_check_info.h>
 #include "global.h"
+#include "coreiot.h"
 
 extern void handleWebSocketMessage(String message);
 #endif

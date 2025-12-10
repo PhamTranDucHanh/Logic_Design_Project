@@ -23,20 +23,36 @@ void handleWebSocketMessage(String message)
         }
 
         int gpio = value["gpio"];
+        const char* name = value["name"];
         String status = value["status"].as<String>();
 
         Serial.printf("Điều khiển GPIO %d → %s\n", gpio, status.c_str());
         pinMode(gpio, OUTPUT);
+
+        // Xác định id theo tên
+        uint8_t id = 0;
+        if (strcmp(name, "Relay 1") == 0) id = 1;
+        else if (strcmp(name, "Relay 2") == 0) id = 2;
+        else if (strcmp(name, "Relay 3") == 0) id = 3;
+
         if (status.equalsIgnoreCase("ON"))
         {
             digitalWrite(gpio, HIGH);
             Serial.printf("GPIO %d ON\n", gpio);
+
+            // Gửi trạng thái lên coreIOT
+            coreiot_publishRelay("Relay", id, true);
+
         }
         else if (status.equalsIgnoreCase("OFF"))
         {
             digitalWrite(gpio, LOW);
             Serial.printf("GPIO %d OFF\n", gpio);
+
+            // Gửi trạng thái lên coreIOT
+            coreiot_publishRelay("Relay", id, false);
         }
+
     }
     else if (doc["page"] == "setting")
     {
