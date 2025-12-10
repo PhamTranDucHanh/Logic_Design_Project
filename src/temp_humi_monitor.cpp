@@ -53,19 +53,19 @@ void temp_humi_monitor(void *pvParameters){
             Serial.println("Queue Sensor Data CoreIOT full");
         }
         
-        // Serial output
-        Serial.print("Light analog: ");
-        Serial.print(lightValue);
-        Serial.print(" -> ");
-        Serial.println(lightLevel);
+        // // Serial output
+        // Serial.print("Light analog: ");
+        // Serial.print(lightValue);
+        // Serial.print(" -> ");
+        // Serial.println(lightLevel);
 
-        // LCD display
+        // // LCD display
         
-        Serial.print("Humidity: ");
-        Serial.print(humidity);
-        Serial.print("%  Temperature: ");
-        Serial.print(temperature);
-        Serial.println("°C");
+        // Serial.print("Humidity: ");
+        // Serial.print(humidity);
+        // Serial.print("%  Temperature: ");
+        // Serial.print(temperature);
+        // Serial.println("°C");
 
         lcd.setCursor(0,0);
         lcd.print("Temp: ");
