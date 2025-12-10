@@ -185,7 +185,9 @@ void handleWebSocketMessage(String message)
         Serial.println("====================================");
         // Gửi vào queue
         if (xQueueSend(xQueueNeoPixelConfig, &config, 0) != pdPASS) {
+#ifdef PRINT_QUEUE_STATUS
             Serial.println("xQueueNeoPixelConfig is full");
+#endif
         }
     }
 }

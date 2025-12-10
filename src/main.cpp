@@ -3,19 +3,14 @@
 #include "led_blinky.h"
 #include "neo_blinky.h"
 #include "temp_humi_monitor.h"
-// #include "mainserver.h"
-// #include "tinyml.h"
 #include "coreiot.h"
 
 // include task
 #include "task_check_info.h"
-#include "task_toogle_boot.h"
 #include "task_wifi.h"
 #include "task_webserver.h"
-#include "task_core_iot.h"
-#include "task_connect_espcam.h"
-// #include "task_human_detection.h"
 #include "task1_human_detection.h"
+#include "task_optimize.h"
 
 void setup()
 {
@@ -32,6 +27,7 @@ void setup()
   xTaskCreate(coreiot_task, "CoreIOT Task" ,4096  ,NULL  ,2 , NULL);
   // xTaskCreate(Task_Toogle_BOOT, "Task_Toogle_BOOT", 4096, NULL, 2, NULL);
   xTaskCreate(human_detection_task1, "Task Human Detection", 4096, NULL, 2, NULL);
+  xTaskCreate(task_power_optimize, "Task Power Optimize", 2048, NULL, 2, NULL);
 }
 
 void loop()

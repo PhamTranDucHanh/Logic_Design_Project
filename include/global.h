@@ -9,7 +9,10 @@
 #include "task_webserver.h"
 #include <Wire.h>
 
-// #define POWER_OPTIMIZE
+#define PRINT_QUEUE_STATUS
+#define PRINT_SENSOR_DATA
+#define PRINT_COREIOT_PUBLISH
+// #define PRINT_HUMAN_DETECTION
 
 extern volatile bool human_detected;
 #define RELAY1_PIN 10
@@ -33,6 +36,8 @@ extern String CORE_IOT_SERVER;
 extern String CORE_IOT_PORT;
 extern SemaphoreHandle_t xBinarySemaphoreInternet;
 extern SemaphoreHandle_t xBinarySemaphoreNeoPixel;
+extern SemaphoreHandle_t xBinarySemaphoreNormalMode;
+extern SemaphoreHandle_t xBinarySemaphoreSavePower;
 
 // Queues for NeoPixel Config
 typedef struct {
