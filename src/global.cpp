@@ -16,3 +16,16 @@ SemaphoreHandle_t xBinarySemaphoreNeoPixel = xSemaphoreCreateBinary();
 
 
 QueueHandle_t xQueueNeoPixelConfig = xQueueCreate(5, sizeof(NeoPixelConfigStruct));
+
+void sendRelayStatusToServer(bool state, String name, int gpio) {
+    StaticJsonDocument<128> doc;
+    doc["type"] = "device";
+    doc["value"]["name"] = name;
+    doc["value"]["status"] = state ? "ON" : "OFF";
+    doc["value"]["gpio"] = gpio;
+    
+    String json;
+    serializeJson(doc, json);
+
+    Webserver_sendata(json); // Gửi tới tất cả client
+}

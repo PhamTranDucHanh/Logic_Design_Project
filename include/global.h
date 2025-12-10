@@ -5,6 +5,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include <ArduinoJson.h>
+#include "task_webserver.h"
+#include <Wire.h>
 
 // #define POWER_OPTIMIZE
 
@@ -60,5 +63,5 @@ typedef struct {
 	int neopixel_r, neopixel_g, neopixel_b;
 } NeoPixelConfigStruct;
 extern QueueHandle_t xQueueNeoPixelConfig;
-
+void sendRelayStatusToServer(bool state, String name, int gpio);
 #endif
