@@ -170,7 +170,7 @@ void coreiot_task(void *pvParameters){
 #ifdef PRINT_COREIOT_PUBLISH
     Serial.println("Published payload: " + payload);
 #endif
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+    vTaskDelay(500/portTICK_PERIOD_MS);
 
   }
 }

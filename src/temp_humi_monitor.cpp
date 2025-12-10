@@ -99,12 +99,7 @@ void temp_humi_monitor(void *pvParameters){
         
         Webserver_sendata(jsonString);
         // ==================================================
-        if (human_detected) {
-            vTaskDelay(3000);
-        }
-        else {
-            vTaskDelay(10000);
-        }
+        vTaskDelay(3000 / portTICK_PERIOD_MS); // Đọc mỗi 3 giây
         
     }
 }
