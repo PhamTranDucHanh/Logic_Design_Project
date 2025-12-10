@@ -52,7 +52,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     return;
   }
 
-    const char* method = doc["method"];
+    const char* method = doc["method"]; 
     if (strcmp(method, "setRelay1") == 0) {
       Serial.println("RPC: setRelay1 received");
       if (doc["params"].is<bool>()) {
@@ -65,6 +65,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
         } else {
           digitalWrite(RELAY1_PIN, LOW);
         }
+        // Gửi trạng thái relay1 lên web server
+        sendRelayStatusToServer(state, "Relay 1", RELAY1_PIN);
+
+        // Trả lời lại coreIOT
+        coreiot_publishRelay( "Relay",1, state);
+
       } else {
         Serial.println("Invalid params type for Relay1!");
       }
@@ -79,7 +85,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
           digitalWrite(RELAY2_PIN, HIGH);
         } else {
           digitalWrite(RELAY2_PIN, LOW);
-        } 
+        }
+        // Gửi trạng thái relay2 lên web server
+        sendRelayStatusToServer(state, "Relay 2", RELAY2_PIN);
+
+        // Trả lời lại coreIOT
+        coreiot_publishRelay("Relay",2,state);
+
+
       } else {
         Serial.println("Invalid params type for Relay2!");
       }
@@ -95,6 +108,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
         } else {
           digitalWrite(RELAY3_PIN, LOW);
         }
+
+        // Gửi trạng thái relay3 lên web server
+        sendRelayStatusToServer(state, "Relay 3", RELAY3_PIN);
+        
+        // Trả lời lại coreIOT
+        coreiot_publishRelay( "Relay", 3, state);
+
       } else {
         Serial.println("Invalid params type for Relay3!");
       }
@@ -158,4 +178,15 @@ void coreiot_task(void *pvParameters){
     Serial.println("Published payload: " + payload);
     vTaskDelay(1000/portTICK_PERIOD_MS);
   }
+}
+void coreiot_publishRelay(const char* group, uint8_t id, bool state) {
+  if (!client.connected()) {
+    // reconnect(); // tùy chọn, nếu muốn chủ động
+    if (!client.connected()) return;
+  }
+  String key = String(group) + String(id);          // ví dụ "Relay1" hoặc "LED2"
+  String payload = String("{\"") + key + "\":" + (state ? "true" : "false") + "}";
+
+  // Lưu bền trạng thái trên dashboard:
+  client.publish("v1/devices/me/attributes", payload.c_str());
 }
