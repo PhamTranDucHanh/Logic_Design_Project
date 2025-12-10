@@ -95,6 +95,7 @@ function onLoad(event) {
     loadRelaysFromStorage();
     initWebSocket();
     initGauges();
+    loadRelaysFromStorage() 
     renderRelays(); // <-- Đảm bảo hiển thị lại danh sách relay
 }
 
@@ -130,6 +131,10 @@ function onMessage(event) {
     try {
         var data = JSON.parse(event.data);
         // Có thể thêm xử lý riêng nếu cần (ví dụ cập nhật trạng thái)
+        // Xử lý cập nhật trạng thái relay từ ESP32
+        if(data.type === "device") { 
+            refreshRelayUI(data.value);
+        }
 
         // ==================================================
         // Kiểm tra xem có phải dữ liệu cảm biến không
@@ -265,6 +270,16 @@ function toggleRelay(id) {
         renderRelays();
     }
 }
+
+function refreshRelayUI(update) {
+    // update: { name, status: "ON"|"OFF", gpio,  }
+    let relay = relayList.find(r => Number(r.gpio) === Number(update.gpio) && r.name === update.name);
+    if (!relay) return;
+    relay.state = (update.status === "ON");
+    saveRelaysToStorage();
+    renderRelays(); // redraw relay cards
+}
+
 function showDeleteDialog(id) {
     deleteTarget = id;
     document.getElementById('confirmDeleteDialog').style.display = 'flex';
